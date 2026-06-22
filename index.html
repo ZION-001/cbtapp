@@ -786,8 +786,14 @@ input, textarea, select, .inp, .sel {
         </div>
         <div id="home-id-hint" style="margin-top:14px;font-size:.65rem;color:rgba(255,255,255,.45);line-height:1.5;">Don't know your School ID or Student ID? Ask your school administrator.</div>
       </div>
+      <!-- Subtle admin/staff entry -->
+      <div style="text-align:center;margin-top:14px;display:flex;justify-content:center;gap:18px;">
+        <button onclick="openAdminGate()" style="background:none;border:none;cursor:pointer;font-size:.6rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:4px 0;text-decoration:underline;text-underline-offset:3px;">School Admin</button>
+        <span style="color:rgba(255,255,255,.18);font-size:.6rem;line-height:1.8;">|</span>
+        <button onclick="closeAdminGate();openStaffLogin()" style="background:none;border:none;cursor:pointer;font-size:.6rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:4px 0;text-decoration:underline;text-underline-offset:3px;">Staff Login</button>
+      </div>
       <!-- Powered by -->
-      <div style="text-align:center;margin-top:18px;font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);">
+      <div style="text-align:center;margin-top:12px;font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);">
         Powered by Maxh Technologies
       </div>
     </div>
@@ -809,10 +815,14 @@ input, textarea, select, .inp, .sel {
           <button class="btn full" onclick="submitAgEmail()">Continue</button>
           <button class="btn full ghost" onclick="closeAdminGate()">Cancel</button>
         </div>
-        <div style="margin-top:12px;text-align:center;">
+        <!-- HIDDEN INTENTIONALLY: "New here? Create an account" button removed from UI.
+             Registration is handled by the platform owner. Do not re-enable without approval. -->
+        <div style="margin-top:12px;text-align:center;display:none;">
           <button class="back-btn" onclick="agSwitchToRegister()">New here? Create an account</button>
         </div>
-        <div style="margin-top:6px;text-align:center;">
+        <!-- HIDDEN INTENTIONALLY: "Staff member? Log in here" removed from admin modal.
+             Staff now access login via the dedicated link on the homepage. Do not re-enable here. -->
+        <div style="margin-top:6px;text-align:center;display:none;">
           <button class="back-btn" onclick="closeAdminGate();openStaffLogin()" style="color:var(--text-muted);">Staff member? Log in here</button>
         </div>
       </div>
