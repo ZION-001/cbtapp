@@ -2671,6 +2671,7 @@ function enterAdminDashboard(data) {
   S.sessionToken = data.token;
   S.schoolId = data.schoolId || null;
   S.userName = data.schoolName || 'Admin';
+  _freshLogin = true; // prevent tryRestoreSession from overwriting this session
   try {
     localStorage.setItem('cbt_session', JSON.stringify({ token: data.token, schoolId: data.schoolId || null }));
   } catch(e) {}
@@ -2900,6 +2901,7 @@ function initiatePayment() {
 }
 
 let _restoringSession = false;
+let _freshLogin = false; // set true when a fresh login just happened, stops restore from overwriting it
 
 function sessionExpired() {
   S.schoolEmail = null;
@@ -4981,13 +4983,17 @@ async function doHomeStudentLogin() {
   let saved;
   try { saved = JSON.parse(localStorage.getItem('cbt_session') || 'null'); } catch(e) {}
   if (!saved || !saved.token || !saved.schoolId) return;
+  if (_freshLogin) return; // fresh login already happened, skip restore
   S.sessionToken = saved.token;
   S.schoolId = saved.schoolId;
   _restoringSession = true;
   const r = await api({ action: 'getAdminBootstrap' });
   _restoringSession = false;
   if (!r.success) {
-    S.sessionToken = null; S.schoolId = null;
+    // Only clear if no fresh login has happened since restore started
+    if (S.sessionToken === saved.token) {
+      S.sessionToken = null; S.schoolId = null;
+    }
     try { localStorage.removeItem('cbt_session'); } catch(e) {}
     return;
   }
