@@ -2467,8 +2467,8 @@ function withAuth(params) {
   if (S.staffId && S.sessionToken && S.schoolId) {
     return Object.assign({}, params, { email: S.staffEmail, token: S.sessionToken, schoolId: S.schoolId });
   }
-  if (S.schoolEmail && S.sessionToken) {
-    return Object.assign({}, params, { email: S.schoolEmail, token: S.sessionToken });
+  if (S.schoolId && S.sessionToken) {
+    return Object.assign({}, params, { schoolId: S.schoolId, token: S.sessionToken });
   }
   return params;
 }
