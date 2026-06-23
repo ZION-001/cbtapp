@@ -772,28 +772,19 @@ input, textarea, select, .inp, .sel {
             autocomplete="off"
             style="width:100%;text-transform:uppercase;text-align:center;background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.6);color:#fff;letter-spacing:2px;font-weight:700;"
             oninput="this.value=this.value.toUpperCase();onHomeSchoolIdInput()">
-          <input class="inp" id="home-student-id" placeholder="Student ID"
+          <input class="inp" id="home-access-id" placeholder="Access ID"
             autocomplete="off"
             style="width:100%;text-transform:uppercase;text-align:center;background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.6);color:#fff;letter-spacing:2px;font-weight:700;"
-            oninput="this.value=this.value.toUpperCase()">
-          <input class="inp" id="home-pin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN (if set)"
-            style="width:100%;text-align:center;background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.6);color:#fff;letter-spacing:4px;font-weight:700;"
+            oninput="this.value=this.value.toUpperCase()"
             onkeydown="if(event.key==='Enter')doHomeStudentLogin()">
           <button class="btn full" onclick="doHomeStudentLogin()" style="background:var(--blue-bright);font-size:.8rem;">Log In</button>
         </div>
-        <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.1);padding-top:14px;">
-          <button class="btn full ghost" onclick="show('student-portal')" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.6);font-size:.72rem;">Check Results (Guest)</button>
-        </div>
-        <div id="home-id-hint" style="margin-top:14px;font-size:.65rem;color:rgba(255,255,255,.45);line-height:1.5;">Don't know your School ID or Student ID? Ask your school administrator.</div>
-      </div>
-      <!-- Subtle admin/staff entry -->
-      <div style="text-align:center;margin-top:14px;display:flex;justify-content:center;gap:18px;">
-        <button onclick="openAdminGate()" style="background:none;border:none;cursor:pointer;font-size:.6rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:4px 0;text-decoration:underline;text-underline-offset:3px;">School Admin</button>
-        <span style="color:rgba(255,255,255,.18);font-size:.6rem;line-height:1.8;">|</span>
-        <button onclick="closeAdminGate();openStaffLogin()" style="background:none;border:none;cursor:pointer;font-size:.6rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:4px 0;text-decoration:underline;text-underline-offset:3px;">Staff Login</button>
+        <!-- HIDDEN INTENTIONALLY: Guest button removed — all access is through login only -->
+        <!-- HIDDEN INTENTIONALLY: School Admin + Staff Login links removed — accessed externally -->
+        <div id="home-id-hint" style="margin-top:14px;font-size:.65rem;color:rgba(255,255,255,.45);line-height:1.5;">Contact your school for your School ID and Access ID.</div>
       </div>
       <!-- Powered by -->
-      <div style="text-align:center;margin-top:12px;font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);">
+      <div style="text-align:center;margin-top:18px;font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);">
         Powered by Maxh Technologies
       </div>
     </div>
@@ -802,32 +793,64 @@ input, textarea, select, .inp, .sel {
   <!-- Create a Quiz — auth modal -->
   <div id="admin-gate" style="display:none;position:fixed;inset:0;z-index:30;background:rgba(13,21,64,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
     <div style="width:90%;max-width:320px;background:var(--card);border-radius:14px;padding:24px 20px;box-shadow:var(--shadow-lg);">
-      <div class="pg-title" id="ag-title" style="margin-bottom:14px;">Create a Quiz</div>
+      <div class="pg-title" id="ag-title" style="margin-bottom:14px;">Admin Login</div>
 
-      <!-- Step 1: Email -->
-      <div id="ag-step-email">
+      <!-- Step 1: School ID + Access ID -->
+      <div id="ag-step-main">
         <div class="fg">
-          <label class="lbl">School Email</label>
-          <input class="inp" id="ag-email" type="email" placeholder="you@school.com"
-            onkeyup="if(event.key==='Enter')submitAgEmail()">
+          <label class="lbl">School ID</label>
+          <input class="inp" id="ag-school-id" type="text" placeholder="Your School ID"
+            oninput="this.value=this.value.toUpperCase()"
+            onkeyup="if(event.key==='Enter')submitAgLogin()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Access ID</label>
+          <input class="inp" id="ag-access-id" type="text" placeholder="SCH-XXXXXX"
+            oninput="this.value=this.value.toUpperCase()"
+            onkeyup="if(event.key==='Enter')submitAgLogin()">
         </div>
         <div style="display:flex;gap:8px;">
-          <button class="btn full" onclick="submitAgEmail()">Continue</button>
+          <button class="btn full" onclick="submitAgLogin()">Log In</button>
           <button class="btn full ghost" onclick="closeAdminGate()">Cancel</button>
         </div>
-        <!-- HIDDEN INTENTIONALLY: "New here? Create an account" button removed from UI.
-             Registration is handled by the platform owner. Do not re-enable without approval. -->
-        <div style="margin-top:12px;text-align:center;display:none;">
-          <button class="back-btn" onclick="agSwitchToRegister()">New here? Create an account</button>
-        </div>
-        <!-- HIDDEN INTENTIONALLY: "Staff member? Log in here" removed from admin modal.
-             Staff now access login via the dedicated link on the homepage. Do not re-enable here. -->
-        <div style="margin-top:6px;text-align:center;display:none;">
-          <button class="back-btn" onclick="closeAdminGate();openStaffLogin()" style="color:var(--text-muted);">Staff member? Log in here</button>
+        <div style="margin-top:12px;text-align:center;">
+          <button class="back-btn" onclick="agSwitchToForgot()">Forgot Access ID?</button>
         </div>
       </div>
 
-      <!-- Step 1b: Register -->
+      <!-- Forgot Access ID: send OTP to school email -->
+      <div id="ag-step-forgot" style="display:none;">
+        <div style="font-size:.75rem;color:var(--text-secondary);margin-bottom:12px;">Enter your School ID and we'll send a recovery code to your registered email.</div>
+        <div class="fg">
+          <label class="lbl">School ID</label>
+          <input class="inp" id="ag-forgot-school-id" type="text" placeholder="Your School ID"
+            oninput="this.value=this.value.toUpperCase()"
+            onkeyup="if(event.key==='Enter')submitAgForgot()">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn full" onclick="submitAgForgot()">Send Code</button>
+          <button class="btn full ghost" onclick="agSwitchToMain()">Back</button>
+        </div>
+      </div>
+
+      <!-- OTP verify for forgot Access ID -->
+      <div id="ag-step-otp" style="display:none;">
+        <div style="font-size:.75rem;color:var(--text-secondary);margin-bottom:12px;" id="ag-otp-hint">We sent a code to your email.</div>
+        <div class="fg">
+          <label class="lbl">Verification Code</label>
+          <input class="inp" id="ag-otp" type="text" inputmode="numeric" maxlength="6" placeholder="• • • • • •" style="text-align:center;letter-spacing:6px;font-weight:700;"
+            onkeyup="if(event.key==='Enter')submitAgOtp()">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn full" onclick="submitAgOtp()">Verify</button>
+          <button class="btn full ghost" onclick="agSwitchToForgot()">Back</button>
+        </div>
+        <div style="margin-top:12px;text-align:center;">
+          <button class="back-btn" onclick="resendAgOtp()">Resend code</button>
+        </div>
+      </div>
+
+      <!-- HIDDEN INTENTIONALLY: Register step removed — school accounts created by platform owner only -->
       <div id="ag-step-register" style="display:none;">
         <div class="fg">
           <label class="lbl">School / Organisation Name</label>
@@ -842,41 +865,13 @@ input, textarea, select, .inp, .sel {
           <button class="btn full" onclick="submitAgRegister()">Create Account</button>
           <button class="btn full ghost" onclick="closeAdminGate()">Cancel</button>
         </div>
-        <div style="margin-top:12px;text-align:center;">
-          <button class="back-btn" onclick="agSwitchToLogin()">Already have an account? Log in</button>
-        </div>
       </div>
 
-      <!-- Step 2a: PIN -->
+      <!-- HIDDEN INTENTIONALLY: PIN step removed — no PIN system anymore -->
       <div id="ag-step-pin" style="display:none;">
         <div class="fg">
           <label class="lbl">Enter PIN</label>
-          <input class="inp" id="ag-pin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" style="text-align:center;letter-spacing:6px;font-weight:700;"
-            onkeyup="if(event.key==='Enter')submitAgPin()">
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn full" onclick="submitAgPin()">Continue</button>
-          <button class="btn full ghost" onclick="closeAdminGate()">Cancel</button>
-        </div>
-        <div style="margin-top:12px;text-align:center;">
-          <button class="back-btn" onclick="agSwitchToOtp()">Forgot PIN? Use email code instead</button>
-        </div>
-      </div>
-
-      <!-- Step 2b: OTP -->
-      <div id="ag-step-otp" style="display:none;">
-        <div style="font-size:.75rem;color:var(--text-secondary);margin-bottom:12px;">We sent a verification code to your email.</div>
-        <div class="fg">
-          <label class="lbl">Verification Code</label>
-          <input class="inp" id="ag-otp" type="text" inputmode="numeric" maxlength="6" placeholder="• • • • • •" style="text-align:center;letter-spacing:6px;font-weight:700;"
-            onkeyup="if(event.key==='Enter')submitAgOtp()">
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn full" onclick="submitAgOtp()">Continue</button>
-          <button class="btn full ghost" onclick="closeAdminGate()">Cancel</button>
-        </div>
-        <div style="margin-top:12px;text-align:center;">
-          <button class="back-btn" onclick="resendAgOtp()">Resend code</button>
+          <input class="inp" id="ag-pin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" style="text-align:center;letter-spacing:6px;font-weight:700;">
         </div>
       </div>
 
@@ -1415,10 +1410,9 @@ Ngozi Adeyemi"></textarea>
           <div style="font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-top:4px;">Log In</div>
         </div>
         <input class="inp" id="stflogin-school-id" placeholder="School ID" autocomplete="off" style="margin-bottom:10px;text-align:center;background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.6);color:#fff;font-weight:700;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
-        <input class="inp" id="stflogin-email" type="email" placeholder="Your Email" autocomplete="off" style="margin-bottom:10px;text-align:center;background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.6);color:#fff;font-weight:600;">
-        <input class="inp" id="stflogin-pin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN (if set)" style="margin-bottom:14px;text-align:center;background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.6);color:#fff;font-weight:700;letter-spacing:4px;" onkeydown="if(event.key==='Enter')doStaffLogin()">
+        <input class="inp" id="stflogin-access-id" type="text" placeholder="Access ID (STF-XXXXXX)" autocomplete="off" style="margin-bottom:14px;text-align:center;background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.6);color:#fff;font-weight:700;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doStaffLogin()">
         <button class="btn full" onclick="doStaffLogin()" style="background:var(--blue-bright);">Log In</button>
-        <div style="text-align:center;margin-top:12px;font-size:.68rem;color:rgba(255,255,255,.5);">Don't know your School ID? Ask your school administrator.</div>
+        <div style="text-align:center;margin-top:12px;font-size:.68rem;color:rgba(255,255,255,.5);">Don't know your Access ID? Ask your school administrator.</div>
       </div>
     </div>
   </div>
@@ -2602,15 +2596,13 @@ function applyAdminMenuRoleFilter() {
 
 /* ══ CREATE-A-QUIZ AUTH FLOW ══ */
 function openAdminGate() {
-  $('ag-email').value = '';
-  $('ag-pin').value = '';
-  $('ag-otp').value = '';
-  $('ag-reg-name').value = '';
-  $('ag-reg-email').value = '';
-  $('ag-title').textContent = 'Create a Quiz';
-  $('ag-step-email').style.display = '';
-  $('ag-step-register').style.display = 'none';
-  $('ag-step-pin').style.display = 'none';
+  if ($('ag-school-id')) $('ag-school-id').value = '';
+  if ($('ag-access-id')) $('ag-access-id').value = '';
+  if ($('ag-otp')) $('ag-otp').value = '';
+  if ($('ag-forgot-school-id')) $('ag-forgot-school-id').value = '';
+  $('ag-title').textContent = 'Admin Login';
+  $('ag-step-main').style.display = '';
+  $('ag-step-forgot').style.display = 'none';
   $('ag-step-otp').style.display = 'none';
   $('admin-gate').style.display = 'flex';
 }
@@ -2618,84 +2610,69 @@ function closeAdminGate() {
   $('admin-gate').style.display = 'none';
 }
 
-function agSwitchToRegister() {
-  $('ag-step-email').style.display = 'none';
-  $('ag-step-register').style.display = '';
+function agSwitchToForgot() {
+  $('ag-step-main').style.display = 'none';
+  $('ag-step-forgot').style.display = '';
 }
-function agSwitchToLogin() {
-  $('ag-step-register').style.display = 'none';
-  $('ag-step-email').style.display = '';
-}
-
-async function submitAgRegister() {
-  const schoolName = $('ag-reg-name').value.trim();
-  const email = $('ag-reg-email').value.trim().toLowerCase();
-  if (!schoolName) { toast('Enter your school name'); return; }
-  if (!email) { toast('Enter your email'); return; }
-  const r = await api({ action: 'registerSchool', schoolName, email });
-  if (!r.success) { toast(r.error || 'Could not create account'); return; }
-  S._agEmail = email;
-  $('ag-step-register').style.display = 'none';
-  $('ag-step-otp').style.display = '';
-  toast(`Account created! ${r.data.trialDays}-day trial started. Code sent to your email.`);
+function agSwitchToMain() {
+  $('ag-step-forgot').style.display = 'none';
+  $('ag-step-otp').style.display = 'none';
+  $('ag-step-main').style.display = '';
 }
 
-async function submitAgEmail() {
-  const email = $('ag-email').value.trim().toLowerCase();
-  if (!email) { toast('Enter your email'); return; }
-  S._agEmail = email;
-  const r = await api({ action: 'checkLoginMethod', email });
+async function submitAgLogin() {
+  const schoolId = $('ag-school-id').value.trim().toUpperCase();
+  const accessId = $('ag-access-id').value.trim().toUpperCase();
+  if (!schoolId || !accessId) { toast('Enter your School ID and Access ID'); return; }
+  const r = await api({ action: 'adminLogin', schoolId, accessId });
   if (!r.success) { toast(r.error || 'Login failed'); return; }
-  if (r.data.method === 'pin') {
-    $('ag-step-email').style.display = 'none';
-    $('ag-step-pin').style.display = '';
-  } else {
-    $('ag-step-email').style.display = 'none';
-    $('ag-step-otp').style.display = '';
-    toast('Verification code sent to your email');
-  }
+  enterAdminDashboard(r.data);
 }
 
-async function submitAgPin() {
-  const pin = $('ag-pin').value.trim();
-  if (!pin) { toast('Enter your PIN'); return; }
-  const r = await api({ action: 'verifyPin', email: S._agEmail, pin });
-  if (!r.success) { toast(r.error || 'Incorrect PIN'); return; }
-  enterAdminDashboard(r.data);
+async function submitAgForgot() {
+  const schoolId = $('ag-forgot-school-id').value.trim().toUpperCase();
+  if (!schoolId) { toast('Enter your School ID'); return; }
+  S._agForgotSchoolId = schoolId;
+  const r = await api({ action: 'forgotAccessId', schoolId });
+  if (!r.success) { toast(r.error || 'Could not send code'); return; }
+  $('ag-otp-hint').textContent = 'We sent a recovery code to ' + (r.data.masked || 'your email') + '.';
+  $('ag-step-forgot').style.display = 'none';
+  $('ag-step-otp').style.display = '';
+  toast('Code sent to your registered email');
 }
 
 async function submitAgOtp() {
   const otp = $('ag-otp').value.trim();
   if (!otp) { toast('Enter the code'); return; }
-  const r = await api({ action: 'verifyOTP', email: S._agEmail, otp });
+  const r = await api({ action: 'verifyOTPAndGetAccessId', schoolId: S._agForgotSchoolId, otp });
   if (!r.success) { toast(r.error || 'Invalid code'); return; }
-  enterAdminDashboard(r.data);
-  if (S._agForgotPin) {
-    S._agForgotPin = false;
-    setTimeout(() => toast('Logged in! Go to Security to set a new PIN.'), 600);
-  }
+  toast('Your Access ID is: ' + r.data.accessId);
+  // Pre-fill the main login form
+  $('ag-school-id').value = S._agForgotSchoolId;
+  $('ag-access-id').value = r.data.accessId;
+  agSwitchToMain();
 }
 
 async function resendAgOtp() {
-  const r = await api({ action: 'requestOTP', email: S._agEmail });
-  if (r.success) toast('Code sent');
+  const r = await api({ action: 'requestOTP', schoolId: S._agForgotSchoolId });
+  if (r.success) toast('Code resent');
   else toast(r.error || 'Could not send code');
 }
 
-function agSwitchToOtp() {
-  S._agForgotPin = true;
-  $('ag-step-pin').style.display = 'none';
-  $('ag-step-otp').style.display = '';
-  resendAgOtp();
-}
+// HIDDEN INTENTIONALLY: old register/email/pin functions kept for reference only
+function agSwitchToRegister() {}
+function agSwitchToLogin() {}
+async function submitAgRegister() {}
+async function submitAgEmail() {}
+async function submitAgPin() {}
+function agSwitchToOtp() {}
 
 function enterAdminDashboard(data) {
-  S.schoolEmail = data.email;
   S.sessionToken = data.token;
   S.schoolId = data.schoolId || null;
   S.userName = data.schoolName || 'Admin';
   try {
-    localStorage.setItem('cbt_session', JSON.stringify({ email: data.email, token: data.token, schoolId: data.schoolId || null }));
+    localStorage.setItem('cbt_session', JSON.stringify({ token: data.token, schoolId: data.schoolId || null }));
   } catch(e) {}
   closeAdminGate();
   show('admin');
@@ -2706,9 +2683,8 @@ function enterAdminDashboard(data) {
 // owner). Mirrors enterAdminDashboard but stores session under a separate
 // localStorage key and populates the staff-specific S fields used by
 // withAuth() and the role-aware admin menu.
-function enterStaffDashboard(data, skipDashboardLoad) {
+function enterStaffDashboard(data) {
   S.staffId = data.staffId;
-  S.staffEmail = data.email;
   S.staffName = data.name || 'Staff';
   S.staffRole = String(data.role || '').toLowerCase();
   S.staffSubjectIds = data.subjectIds || [];
@@ -2717,11 +2693,10 @@ function enterStaffDashboard(data, skipDashboardLoad) {
   S.userName = data.name || 'Staff';
   try {
     localStorage.setItem('cbt_staff_session', JSON.stringify({
-      email: data.email, token: data.token, schoolId: data.schoolId || null,
+      token: data.token, schoolId: data.schoolId || null,
       staffId: data.staffId, name: data.name, role: data.role, subjectIds: data.subjectIds || []
     }));
   } catch(e) {}
-  if (skipDashboardLoad) return;
   closeAdminGate();
   show('admin');
   loadAdminBootstrap();
@@ -3581,25 +3556,15 @@ function studentLogout() {
   show('home');
 }
 
-async function doSetStudentPin() {
-  const pin = document.getElementById('stu-pin-input').value.trim();
-  const confirm = document.getElementById('stu-pin-confirm').value.trim();
-  if (!pin || pin.length < 4) { toast('PIN must be at least 4 digits'); return; }
-  if (pin !== confirm) { toast('PINs do not match'); return; }
-  if (!S_student) return;
-  const r = await api({ action: 'setStudentPin', schoolId: S_student.schoolId, studentId: S_student.studentId, pin });
-  if (!r.success) { toast('Error: ' + r.error); return; }
-  S_student.hasPinSet = true;
-  toast('PIN set! Use it next time you log in.');
-  show('student-dashboard');
-}
+// HIDDEN INTENTIONALLY: doSetStudentPin removed — no PIN system anymore
+async function doSetStudentPin() {}
 
 // Restore student session on page load
 (function tryRestoreStudentSession() {
   let saved;
   try { saved = JSON.parse(localStorage.getItem('cbt_student') || 'null'); } catch(e) {}
-  if (!saved || !saved.schoolId || !saved.studentId) return;
-  api({ action: 'studentLogin', schoolId: saved.schoolId, studentId: saved.studentId, pin: saved.pin || '' }).then(r => {
+  if (!saved || !saved.schoolId || !saved.accessId) return;
+  api({ action: 'studentLogin', schoolId: saved.schoolId, accessId: saved.accessId }).then(r => {
     if (r.success) { S_student = r.data; S_student.schoolId = saved.schoolId; renderStudentDashboard(); }
     else { try { localStorage.removeItem('cbt_student'); } catch(e) {} }
   });
@@ -3608,39 +3573,21 @@ async function doSetStudentPin() {
 /* ══ STAFF LOGIN ══ */
 function openStaffLogin() {
   document.getElementById('stflogin-school-id').value = '';
-  document.getElementById('stflogin-email').value = '';
-  document.getElementById('stflogin-pin').value = '';
+  document.getElementById('stflogin-access-id').value = '';
   show('staff-login');
 }
 
 async function doStaffLogin() {
   const schoolId = document.getElementById('stflogin-school-id').value.trim().toUpperCase();
-  const email = document.getElementById('stflogin-email').value.trim();
-  const pin = document.getElementById('stflogin-pin').value.trim();
-  if (!schoolId || !email) { toast('Enter School ID and Email'); return; }
-  const r = await api({ action: 'staffLogin', schoolId, email, pin });
+  const accessId = document.getElementById('stflogin-access-id').value.trim().toUpperCase();
+  if (!schoolId || !accessId) { toast('Enter School ID and Access ID'); return; }
+  const r = await api({ action: 'staffLogin', schoolId, accessId });
   if (!r.success) { toast(r.error || 'Login failed'); return; }
-  if (!r.data.hasPinSet) {
-    // First login — go straight to PIN setup before entering the dashboard.
-    enterStaffDashboard(r.data, /*skipDashboardLoad*/ true);
-    show('staff-set-pin');
-    return;
-  }
   enterStaffDashboard(r.data);
 }
 
-async function doSetStaffPin() {
-  const pin = document.getElementById('stf-pin-input').value.trim();
-  const confirm = document.getElementById('stf-pin-confirm').value.trim();
-  if (!pin || pin.length < 4) { toast('PIN must be at least 4 digits'); return; }
-  if (pin !== confirm) { toast('PINs do not match'); return; }
-  if (!S.staffEmail || !S.schoolId) return;
-  const r = await api({ action: 'setStaffPin', schoolId: S.schoolId, email: S.staffEmail, pin });
-  if (!r.success) { toast('Error: ' + r.error); return; }
-  toast('PIN set! Use it next time you log in.');
-  show('admin');
-  loadAdminBootstrap();
-}
+// HIDDEN INTENTIONALLY: staff PIN setup removed — no PIN system anymore
+async function doSetStaffPin() { show('admin'); loadAdminBootstrap(); }
 
 /* ══ PLATFORM OWNER (creator) ══
    Your own access, completely separate from any school. Reached via a
@@ -5007,14 +4954,13 @@ function onHomeSchoolIdInput() {
 
 async function doHomeStudentLogin() {
   const schoolId = $('home-school-id').value.trim().toUpperCase();
-  const studentId = $('home-student-id').value.trim().toUpperCase();
-  const pin = $('home-pin').value.trim();
-  if (!schoolId || !studentId) { toast('Enter School ID and Student ID'); return; }
-  const r = await api({ action: 'studentLogin', schoolId, studentId, pin });
+  const accessId = $('home-access-id').value.trim().toUpperCase();
+  if (!schoolId || !accessId) { toast('Enter School ID and Access ID'); return; }
+  const r = await api({ action: 'studentLogin', schoolId, accessId });
   if (!r.success) { toast(r.error || 'Login failed'); return; }
   S_student = r.data;
   S_student.schoolId = schoolId;
-  try { localStorage.setItem('cbt_student', JSON.stringify({ schoolId, studentId, pin })); } catch(e) {}
+  try { localStorage.setItem('cbt_student', JSON.stringify({ schoolId, accessId })); } catch(e) {}
   renderStudentDashboard();
 }
 
@@ -5024,15 +4970,14 @@ async function doHomeStudentLogin() {
 (async function tryRestoreSession() {
   let saved;
   try { saved = JSON.parse(localStorage.getItem('cbt_session') || 'null'); } catch(e) {}
-  if (!saved || !saved.email || !saved.token) return;
-  S.schoolEmail = saved.email;
+  if (!saved || !saved.token || !saved.schoolId) return;
   S.sessionToken = saved.token;
-  S.schoolId = saved.schoolId || null;
+  S.schoolId = saved.schoolId;
   _restoringSession = true;
   const r = await api({ action: 'getAdminBootstrap' });
   _restoringSession = false;
   if (!r.success) {
-    S.schoolEmail = null; S.sessionToken = null; S.schoolId = null;
+    S.sessionToken = null; S.schoolId = null;
     try { localStorage.removeItem('cbt_session'); } catch(e) {}
     return;
   }
@@ -5048,10 +4993,9 @@ async function doHomeStudentLogin() {
 (async function tryRestoreStaffSession() {
   let saved;
   try { saved = JSON.parse(localStorage.getItem('cbt_staff_session') || 'null'); } catch(e) {}
-  if (!saved || !saved.email || !saved.token || !saved.schoolId) return;
-  if (S.schoolEmail) return; // a school-owner session already won this device
+  if (!saved || !saved.token || !saved.schoolId) return;
+  if (S.sessionToken) return; // a school-owner session already won this device
   S.staffId = saved.staffId;
-  S.staffEmail = saved.email;
   S.staffName = saved.name || 'Staff';
   S.staffRole = String(saved.role || '').toLowerCase();
   S.staffSubjectIds = saved.subjectIds || [];
@@ -5061,7 +5005,7 @@ async function doHomeStudentLogin() {
   const r = await api({ action: 'getAdminBootstrap' });
   _restoringSession = false;
   if (!r.success) {
-    S.staffId = null; S.staffEmail = null; S.staffName = null; S.staffRole = null; S.staffSubjectIds = [];
+    S.staffId = null; S.staffName = null; S.staffRole = null; S.staffSubjectIds = [];
     S.sessionToken = null; S.schoolId = null;
     try { localStorage.removeItem('cbt_staff_session'); } catch(e) {}
     return;
