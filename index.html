@@ -4953,15 +4953,25 @@ function onHomeSchoolIdInput() {
 }
 
 async function doHomeStudentLogin() {
-  const schoolId = $('home-school-id').value.trim().toUpperCase();
-  const accessId = $('home-access-id').value.trim().toUpperCase();
-  if (!schoolId || !accessId) { toast('Enter School ID and Access ID'); return; }
-  const r = await api({ action: 'studentLogin', schoolId, accessId });
-  if (!r.success) { toast(r.error || 'Login failed'); return; }
-  S_student = r.data;
-  S_student.schoolId = schoolId;
-  try { localStorage.setItem('cbt_student', JSON.stringify({ schoolId, accessId })); } catch(e) {}
-  renderStudentDashboard();
+  const schoolId = $("home-school-id").value.trim().toUpperCase();
+  const accessId = $("home-access-id").value.trim().toUpperCase();
+  if (!schoolId || !accessId) { toast("Enter School ID and Access ID"); return; }
+  if (accessId.startsWith("SCH-")) {
+    const r = await api({ action: "adminLogin", schoolId, accessId });
+    if (!r.success) { toast(r.error || "Login failed"); return; }
+    enterAdminDashboard(r.data);
+  } else if (accessId.startsWith("STF-")) {
+    const r = await api({ action: "staffLogin", schoolId, accessId });
+    if (!r.success) { toast(r.error || "Login failed"); return; }
+    enterStaffDashboard(r.data);
+  } else {
+    const r = await api({ action: "studentLogin", schoolId, accessId });
+    if (!r.success) { toast(r.error || "Login failed"); return; }
+    S_student = r.data;
+    S_student.schoolId = schoolId;
+    try { localStorage.setItem("cbt_student", JSON.stringify({ schoolId, accessId })); } catch(e) {}
+    renderStudentDashboard();
+  }
 }
 
 // On page load, silently restore a saved admin session (if any) so
