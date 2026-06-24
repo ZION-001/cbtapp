@@ -3716,7 +3716,7 @@ async function loadPublishedList() {
     '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px;">' +
     '<div><div style="font-weight:700;font-size:.82rem;">' + esc(p.className) + '</div>' +
     '<div style="font-size:.72rem;color:var(--text-muted);">' + esc(p.term) + ' · ' + esc(p.session) + '</div></div>' +
-    '<button class="btn danger sm" style="font-size:.6rem;" onclick="doUnpublishResults('' + esc(p.className) + '','' + esc(p.term) + '','' + esc(p.session) + '')">Unpublish</button>' +
+    '<button class="btn danger sm" style="font-size:.6rem;" onclick="doUnpublishResults(&quot;' + esc(p.className) + '&quot;,&quot;' + esc(p.term) + '&quot;,&quot;' + esc(p.session) + '&quot;)">Unpublish</button>' +
     '</div>'
   ).join('');
 }
