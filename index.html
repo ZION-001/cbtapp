@@ -1586,7 +1586,7 @@ Ngozi Adeyemi"></textarea>
   </div>
   <div class="page">
     <div class="pg-title">ID Cards</div>
-    <div style="font-size:.78rem;color:var(--text-secondary);margin-bottom:14px;">Print or share student ID cards. Each card shows the student name, class, Student ID, and a QR code for the student portal.</div>
+    <div style="font-size:.78rem;color:var(--text-secondary);margin-bottom:14px;">Print or share student ID cards. Each card shows the student name, class, Access ID, and a QR code for the student portal.</div>
     <div class="fg">
       <label class="lbl">Filter by class (optional)</label>
       <select class="inp" id="idcard-class-filter" onchange="renderIdCards()">
@@ -3827,7 +3827,7 @@ function renderIdCards() {
         <div class="id-card-photo">${photoHtml}</div>
         <div class="id-card-name">${s.Name}</div>
         <div class="id-card-class">${s.ClassName || ''}</div>
-        <div class="id-card-id">${s.StudentID}</div>
+        <div class="id-card-id">${s.AccessID || s.StudentID}</div>
         <div class="id-card-qr" id="qr-card-${s.StudentID}"></div>
       </div>`;
   }).join('');
@@ -3878,7 +3878,7 @@ async function openNotAttempted(quizId, quizTitle, e) {
       <div class="li">
         <div style="flex:1;">
           <div class="li-name">${s.Name}</div>
-          <div class="li-meta">${s.ClassName || ''} · ID: ${s.StudentID}</div>
+          <div class="li-meta">${s.ClassName || ''}</div>
         </div>
       </div>`).join('')}
   `;
@@ -3969,7 +3969,7 @@ async function openLeaderboard(quizId, quizTitle, e) {
       <div style="width:32px;text-align:center;font-size:${i<3?'1.3':'1'}rem;flex-shrink:0;">${i<3?medals[i]:'#'+(i+1)}</div>
       <div style="flex:1;min-width:0;">
         <div class="li-name">${esc(entry.name)}</div>
-        <div class="li-meta">${entry.score}/${entry.total} · ${entry.percentage}%${entry.studentId?' · '+esc(entry.studentId):''}</div>
+        <div class="li-meta">${entry.score}/${entry.total} · ${entry.percentage}%${''}</div>
       </div>
       <div style="font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:800;color:${parseFloat(entry.percentage)>=70?'var(--green)':parseFloat(entry.percentage)>=50?'var(--blue-bright)':'var(--red)'};">${entry.percentage}%</div>
     </div>
@@ -4032,7 +4032,7 @@ async function openReportCard(studentId) {
       ${photoHtml}
       <div>
         <div style="font-weight:700;font-size:.95rem;">${esc(stu.Name)}</div>
-        <div style="font-size:.75rem;color:var(--text-muted);">${esc(stu.ClassName || '')} · ID: ${esc(stu.StudentID)}</div>
+        <div style="font-size:.75rem;color:var(--text-muted);">${esc(stu.ClassName || '')}</div>
       </div>
     </div>
 
@@ -4563,7 +4563,7 @@ async function loadClassRegister() {
         <tr style="${r.status==='inactive'?'opacity:.5;':''}">
           <td style="padding:6px 8px;border-bottom:1px solid var(--border);">${r.no}</td>
           <td style="padding:6px 8px;border-bottom:1px solid var(--border);font-weight:600;">${esc(r.name)}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:monospace;font-size:.72rem;">${esc(r.studentId)}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:monospace;font-size:.72rem;">${esc(r.accessId || r.studentId)}</td>
           <td style="padding:6px 8px;border-bottom:1px solid var(--border);">${esc(r.className||'')}</td>
           <td style="padding:6px 8px;border-bottom:1px solid var(--border);color:${r.status==='inactive'?'var(--red)':'var(--green)'};">${r.status}</td>
         </tr>`).join('')}
@@ -4623,7 +4623,7 @@ function exportGradeSheetCSV() {
   const csvEsc = v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
   const headers = ['Pos','Name','Student ID','Class', ...subjects, 'Average %','Grade'];
   const rows = students.map(stu => [
-    stu.position, stu.name, stu.studentId, stu.className,
+    stu.position, stu.name, stu.accessId || stu.studentId, stu.className,
     ...subjects.map(s => stu.subjects[s] ? stu.subjects[s].total : ''),
     stu.average, stu.overallGrade
   ]);
