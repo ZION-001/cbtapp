@@ -1063,6 +1063,7 @@ input, textarea, select, .inp, .sel {
     <button class="admin-menu-item" data-role="owner,exam_officer,super_admin" onclick="closeAdminMenu();openAnalytics()"><span class="ic">📊</span>Analytics</button>
     <button class="admin-menu-item" data-role="owner,exam_officer,super_admin" onclick="closeAdminMenu();show('students');renderStudents()"><span class="ic">👥</span>Students</button>
     <button class="admin-menu-item" data-role="owner,exam_officer,super_admin" onclick="closeAdminMenu();openAnnouncements()"><span class="ic">📢</span>Announce</button>
+    <button class="admin-menu-item" data-role="owner,exam_officer,super_admin" onclick="closeAdminMenu();openPublishResults()"><span class="ic">📊</span>Publish Results</button>
     <button class="admin-menu-item" data-role="owner,super_admin" onclick="closeAdminMenu();openSettings()"><span class="ic">⚙️</span>Settings</button>
     <button class="admin-menu-item" data-role="owner,super_admin" onclick="closeAdminMenu();openStaff()"><span class="ic">🧑‍🏫</span>Staff</button>
     <button class="admin-menu-item" data-role="owner,super_admin" onclick="closeAdminMenu();openPaymentHistory()"><span class="ic">🧾</span>Payments</button>
@@ -1380,9 +1381,78 @@ Ngozi Adeyemi"></textarea>
       <div class="pg-title">📢 Announcements</div>
       <div id="student-ann-list"></div>
     </div>
-    <button class="btn ghost full" style="margin-bottom:18px;" onclick="openStudentPracticeQuizzes()">📚 Practice / Past Questions</button>
-    <div class="pg-title">My Results</div>
-    <div id="student-results-list"><div class="empty">No results published yet.</div></div>
+    <button class="btn ghost full" style="margin-bottom:10px;" onclick="openStudentPracticeQuizzes()">📚 Practice / Past Questions</button>
+    <button class="btn full" style="margin-bottom:18px;background:var(--blue-bright);" onclick="openStudentCheckResults()">📊 Check Results</button>
+    <div class="pg-title">Quick Results</div>
+    <div id="student-results-list"><div class="empty">No results yet.</div></div>
+  </div>
+</div>
+
+
+<!-- ════════════ STUDENT CHECK RESULTS ════════════ -->
+<div id="s-student-check-results" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('student-dashboard')">◀ Back</button>
+    <span class="topbar-title">Check Results</span>
+    <span></span>
+  </div>
+  <div class="page">
+    <div style="margin-bottom:18px;">
+      <div class="fg">
+        <label class="lbl">Session</label>
+        <input class="inp" id="stu-res-session" placeholder="e.g. 2025/2026" autocomplete="off">
+      </div>
+      <div class="fg">
+        <label class="lbl">Term</label>
+        <select class="inp" id="stu-res-term">
+          <option value="">Select Term</option>
+          <option value="Term 1">Term 1</option>
+          <option value="Term 2">Term 2</option>
+          <option value="Term 3">Term 3</option>
+        </select>
+      </div>
+      <button class="btn full" onclick="doStudentCheckResults()" style="margin-top:6px;">Check Results</button>
+    </div>
+    <div id="stu-res-output"></div>
+  </div>
+</div>
+
+<!-- ════════════ ADMIN PUBLISH RESULTS ════════════ -->
+<div id="s-publish-results" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('admin')">◀ Back</button>
+    <span class="topbar-title">Publish Results</span>
+    <span></span>
+  </div>
+  <div class="page">
+    <div style="font-size:.78rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.6;">
+      Publish results to allow students to see their scores for a specific class, term, and session. Unpublish to hide them again.
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
+      <div class="pg-title" style="font-size:.85rem;margin-bottom:12px;">Publish New</div>
+      <div class="fg">
+        <label class="lbl">Class</label>
+        <select class="inp" id="pub-class-sel">
+          <option value="">Select Class</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="lbl">Term</label>
+        <select class="inp" id="pub-term-sel">
+          <option value="">Select Term</option>
+          <option value="Term 1">Term 1</option>
+          <option value="Term 2">Term 2</option>
+          <option value="Term 3">Term 3</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="lbl">Session</label>
+        <input class="inp" id="pub-session-input" placeholder="e.g. 2025/2026" autocomplete="off">
+      </div>
+      <button class="btn full" onclick="doPublishResults()">✅ Publish Results</button>
+    </div>
+    <div class="pg-title" style="font-size:.85rem;margin-bottom:10px;">Published</div>
+    <div id="published-list"><div class="empty">No results published yet.</div></div>
   </div>
 </div>
 
@@ -3566,6 +3636,111 @@ function getClientGrade(pct, cfg) {
   return { grade: 'F', remark: 'Fail' };
 }
 
+
+/* ══ STUDENT CHECK RESULTS ══ */
+function openStudentCheckResults() {
+  // Pre-fill session from school's current session if available
+  const sessionInput = document.getElementById('stu-res-session');
+  if (sessionInput && S_student && S_student.currentSession) {
+    sessionInput.value = S_student.currentSession;
+  }
+  document.getElementById('stu-res-output').innerHTML = '';
+  show('student-check-results');
+}
+
+async function doStudentCheckResults() {
+  const term    = document.getElementById('stu-res-term').value.trim();
+  const session = document.getElementById('stu-res-session').value.trim();
+  const out     = document.getElementById('stu-res-output');
+  if (!term || !session) { toast('Select a term and enter the session'); return; }
+  if (!S_student) return;
+
+  out.innerHTML = '<div class="loading">Checking…</div>';
+  const r = await api({
+    action: 'getStudentResults',
+    schoolId: S_student.schoolId,
+    accessId: S_student.accessId,
+    term, session
+  });
+
+  if (!r.success) { out.innerHTML = '<div class="empty">Could not load results. Try again.</div>'; return; }
+
+  if (!r.data.published) {
+    out.innerHTML = '<div style="text-align:center;padding:32px 16px;"><div style="font-size:2rem;margin-bottom:10px;">🔒</div><div style="font-weight:700;font-size:.9rem;margin-bottom:6px;">Results Not Published</div><div style="font-size:.78rem;color:var(--text-muted);line-height:1.6;">Your school has not published results for ' + esc(term) + ' · ' + esc(session) + ' yet.<br>Please check back later or contact your school.</div></div>';
+    return;
+  }
+
+  const results = r.data.results || [];
+  if (!results.length) {
+    out.innerHTML = '<div class="empty">No results found for this term and session.</div>';
+    return;
+  }
+
+  const cfg = [{min:70,grade:'A',remark:'Excellent'},{min:60,grade:'B',remark:'Very Good'},{min:50,grade:'C',remark:'Good'},{min:45,grade:'D',remark:'Pass'},{min:0,grade:'F',remark:'Fail'}];
+  out.innerHTML = '<div style="margin-bottom:12px;font-size:.78rem;font-weight:700;color:var(--text-muted);">' + esc(term) + ' · ' + esc(session) + ' — ' + results.length + ' result(s)</div>' +
+    results.map(res => {
+      const pct = parseFloat(res.percentage) || 0;
+      const g = cfg.find(x => pct >= x.min) || cfg[cfg.length-1];
+      return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;">' +
+        '<div style="font-weight:700;font-size:.85rem;margin-bottom:6px;">' + esc(res.quizTitle) + '</div>' +
+        '<div style="display:flex;gap:10px;align-items:center;">' +
+        '<span style="font-size:1rem;font-weight:700;color:var(--blue-bright);">' + res.score + '/' + res.total + '</span>' +
+        '<span style="font-size:.75rem;color:var(--text-muted);">' + pct.toFixed(1) + '%</span>' +
+        '<span style="margin-left:auto;font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:50px;background:var(--surface3);">' + g.grade + ' — ' + g.remark + '</span>' +
+        '</div>' +
+        '<div style="font-size:.65rem;color:var(--text-muted);margin-top:4px;">' + new Date(res.date).toLocaleDateString() + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+/* ══ ADMIN PUBLISH RESULTS ══ */
+function openPublishResults() {
+  show('publish-results');
+  // Populate class dropdown
+  const students = S.tree?.students || [];
+  const classes = [...new Set(students.map(s => s.ClassName).filter(Boolean))].sort();
+  const sel = document.getElementById('pub-class-sel');
+  sel.innerHTML = '<option value="">Select Class</option>' + classes.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('');
+  // Pre-fill session
+  const si = document.getElementById('pub-session-input');
+  if (si && S.currentSession) si.value = S.currentSession;
+  loadPublishedList();
+}
+
+async function loadPublishedList() {
+  const el = document.getElementById('published-list');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const r = await api({ action: 'getPublishedTerms' });
+  if (!r.success || !r.data.length) { el.innerHTML = '<div class="empty">No results published yet.</div>'; return; }
+  el.innerHTML = r.data.map(p => 
+    '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px;">' +
+    '<div><div style="font-weight:700;font-size:.82rem;">' + esc(p.className) + '</div>' +
+    '<div style="font-size:.72rem;color:var(--text-muted);">' + esc(p.term) + ' · ' + esc(p.session) + '</div></div>' +
+    '<button class="btn danger sm" style="font-size:.6rem;" onclick="doUnpublishResults('' + esc(p.className) + '','' + esc(p.term) + '','' + esc(p.session) + '')">Unpublish</button>' +
+    '</div>'
+  ).join('');
+}
+
+async function doPublishResults() {
+  const className = document.getElementById('pub-class-sel').value.trim();
+  const term      = document.getElementById('pub-term-sel').value.trim();
+  const session   = document.getElementById('pub-session-input').value.trim();
+  if (!className || !term || !session) { toast('Select class, term and enter session'); return; }
+  const r = await api({ action: 'publishResults', className, term, session });
+  if (!r.success) { toast('Error: ' + r.error); return; }
+  if (r.data.already) { toast('Already published'); return; }
+  toast('Results published for ' + className + ' · ' + term);
+  loadPublishedList();
+}
+
+async function doUnpublishResults(className, term, session) {
+  if (!await cbtConfirm('Unpublish', 'Hide results for ' + className + ' · ' + term + '? Students will no longer see them.')) return;
+  const r = await api({ action: 'unpublishResults', className, term, session });
+  if (!r.success) { toast('Error: ' + r.error); return; }
+  toast('Unpublished');
+  loadPublishedList();
+}
+
 function studentLogout() {
   S_student = null;
   try { localStorage.removeItem('cbt_student'); } catch(e) {}
@@ -3581,7 +3756,7 @@ async function doSetStudentPin() {}
   try { saved = JSON.parse(localStorage.getItem('cbt_student') || 'null'); } catch(e) {}
   if (!saved || !saved.schoolId || !saved.accessId) return;
   api({ action: 'studentLogin', schoolId: saved.schoolId, accessId: saved.accessId }).then(r => {
-    if (r.success) { S_student = r.data; S_student.schoolId = saved.schoolId; renderStudentDashboard(); }
+    if (r.success) { S_student = r.data; S_student.schoolId = saved.schoolId; S_student.accessId = saved.accessId; renderStudentDashboard(); }
     else { try { localStorage.removeItem('cbt_student'); } catch(e) {} }
   });
 })();
@@ -5024,6 +5199,7 @@ async function doHomeStudentLogin() {
     if (!r.success) { toast(r.error || "Login failed"); return; }
     S_student = r.data;
     S_student.schoolId = schoolId;
+    S_student.accessId = accessId;
     try { localStorage.setItem("cbt_student", JSON.stringify({ schoolId, accessId })); } catch(e) {}
     renderStudentDashboard();
   }
