@@ -3064,14 +3064,14 @@ function renderStudents() {
           <div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><span style="font-size:.6rem;color:var(--text-muted);font-weight:600;letter-spacing:1px;">ACCESS ID:</span><span style="font-size:.65rem;font-weight:700;color:var(--blue-bright);font-family:monospace;letter-spacing:1px;">${s.AccessID || '—'}</span><button onclick="navigator.clipboard.writeText('${s.AccessID||''}').then(()=>toast('Copied: ${s.AccessID||''}'))" style="background:none;border:none;cursor:pointer;padding:0 3px;font-size:.65rem;color:var(--text-muted);" title="Copy Access ID">&#x2398;</button></div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px;width:100%;">
-        <button class="btn ghost sm" style="font-size:.62rem;" onclick="editStudent('${s.StudentID}')">Edit</button>
-        <button class="btn ghost sm" style="font-size:.62rem;" onclick="editParentInfo('${s.StudentID}')">Parent</button>
-        <button class="btn ghost sm" style="font-size:.62rem;" onclick="openReportCard('${s.StudentID}')">Report</button>
-        <button class="btn ghost sm" style="font-size:.62rem;" onclick="toggleStudentStatus('${s.StudentID}','${s.Status||'active'}')">
-          ${inactive?'Reactivate':'Deactivate'}
-        </button>
-        <button class="btn danger sm" style="font-size:.62rem;grid-column:span 2;" onclick="deleteStudentUI('${s.StudentID}')">Del</button>
+      <div style="display:flex;gap:5px;margin-top:8px;width:100%;">
+        <button class="btn ghost sm" style="flex:1;font-size:.6rem;" onclick="editStudent('${s.StudentID}')">Edit</button>
+        <button class="btn ghost sm" style="flex:1;font-size:.6rem;" onclick="editParentInfo('${s.StudentID}')">Parent</button>
+        <button class="btn ghost sm" style="flex:1;font-size:.6rem;" onclick="openReportCard('${s.StudentID}')">Report</button>
+      </div>
+      <div style="display:flex;gap:5px;margin-top:4px;width:100%;">
+        <button class="btn ghost sm" style="flex:1;font-size:.6rem;" onclick="toggleStudentStatus('${s.StudentID}','${s.Status||'active'}')">${inactive?'Reactivate':'Deactivate'}</button>
+        <button class="btn danger sm" style="flex:1;font-size:.6rem;" onclick="deleteStudentUI('${s.StudentID}')">Del</button>
       </div>
     </div>`;
   }).join('');
@@ -3526,7 +3526,7 @@ function renderStudentDashboard() {
   if (!S_student) return;
   document.getElementById('student-name-display').textContent = S_student.studentName || '—';
   document.getElementById('student-class-display').textContent = S_student.className || '';
-  document.getElementById('student-id-display').textContent = 'ID: ' + (S_student.studentId || '');
+  document.getElementById('student-id-display').textContent = ''; // HIDDEN INTENTIONALLY: internal StudentID not shown to student
   if (S_student.photoUrl) {
     const circle = document.getElementById('student-photo-circle');
     circle.innerHTML = `<img src="${S_student.photoUrl}" style="width:100%;height:100%;object-fit:cover;">`;
