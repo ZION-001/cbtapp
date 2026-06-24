@@ -1363,7 +1363,7 @@ Ngozi Adeyemi"></textarea>
   <div class="topbar">
     <button class="back-btn" onclick="studentLogout()">Exit</button>
     <span class="topbar-title">Student Portal</span>
-    <button class="btn ghost sm" style="font-size:.6rem;" onclick="show('student-set-pin')">Set PIN</button>
+    <span></span>
   </div>
   <div class="page">
     <div id="student-profile-card" style="background:var(--grad-main);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px;color:#fff;box-shadow:var(--shadow-md);">
@@ -1679,8 +1679,8 @@ Ngozi Adeyemi"></textarea>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn ghost sm" style="flex:1;" onclick="downloadCATemplate()">⬇ Download Template</button>
-        <button class="btn ghost sm" style="flex:1;" onclick="document.getElementById('ca-csv-input').click()">⬆ Upload CSV</button>
-        <input type="file" id="ca-csv-input" accept=".csv" style="display:none;" onchange="handleCACsvUpload(this)">
+        <button class="btn ghost sm" style="flex:1;" onclick="document.getElementById('ca-csv-input').click()">⬆ Upload CSV / XLSX</button>
+        <input type="file" id="ca-csv-input" accept=".csv,.xlsx,.xls" style="display:none;" onchange="handleCACsvUpload(this)">
       </div>
       <div id="ca-csv-status" style="font-size:.72rem;margin-top:8px;"></div>
     </div>
@@ -1708,8 +1708,8 @@ Ngozi Adeyemi"></textarea>
       <div style="font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Bulk Upload (CSV)</div>
       <div style="display:flex;gap:8px;">
         <button class="btn ghost sm" style="flex:1;" onclick="downloadExamTemplate()">⬇ Download Template</button>
-        <button class="btn ghost sm" style="flex:1;" onclick="document.getElementById('exam-csv-input').click()">⬆ Upload CSV</button>
-        <input type="file" id="exam-csv-input" accept=".csv" style="display:none;" onchange="handleExamCsvUpload(this)">
+        <button class="btn ghost sm" style="flex:1;" onclick="document.getElementById('exam-csv-input').click()">⬆ Upload CSV / XLSX</button>
+        <input type="file" id="exam-csv-input" accept=".csv,.xlsx,.xls" style="display:none;" onchange="handleExamCsvUpload(this)">
       </div>
       <div id="exam-csv-status" style="font-size:.72rem;margin-top:8px;"></div>
     </div>
@@ -3060,18 +3060,18 @@ function renderStudents() {
         </div>
         <div style="flex:1;min-width:0;">
           <div class="li-name">${s.Name}${inactive?' (inactive)':''}</div>
-          <div class="li-meta">ID: <strong>${s.StudentID}</strong>${s.Email ? ' · ' + s.Email : ''}</div>
+          <div class="li-meta">${s.ClassName}${s.Email ? ' · ' + s.Email : ''}</div>
           <div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><span style="font-size:.6rem;color:var(--text-muted);font-weight:600;letter-spacing:1px;">ACCESS ID:</span><span style="font-size:.65rem;font-weight:700;color:var(--blue-bright);font-family:monospace;letter-spacing:1px;">${s.AccessID || '—'}</span><button onclick="navigator.clipboard.writeText('${s.AccessID||''}').then(()=>toast('Copied: ${s.AccessID||''}'))" style="background:none;border:none;cursor:pointer;padding:0 3px;font-size:.65rem;color:var(--text-muted);" title="Copy Access ID">&#x2398;</button></div>
         </div>
       </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;width:100%;">
-        <button class="btn ghost sm" style="flex:1;font-size:.62rem;" onclick="editStudent('${s.StudentID}')">Edit</button>
-        <button class="btn ghost sm" style="flex:1;font-size:.62rem;" onclick="editParentInfo('${s.StudentID}')">Parent</button>
-        <button class="btn ghost sm" style="flex:1;font-size:.62rem;" onclick="openReportCard('${s.StudentID}')">📋 Report</button>
-        <button class="btn ghost sm" style="flex:1;font-size:.62rem;" onclick="toggleStudentStatus('${s.StudentID}','${s.Status||'active'}')">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px;width:100%;">
+        <button class="btn ghost sm" style="font-size:.62rem;" onclick="editStudent('${s.StudentID}')">Edit</button>
+        <button class="btn ghost sm" style="font-size:.62rem;" onclick="editParentInfo('${s.StudentID}')">Parent</button>
+        <button class="btn ghost sm" style="font-size:.62rem;" onclick="openReportCard('${s.StudentID}')">Report</button>
+        <button class="btn ghost sm" style="font-size:.62rem;" onclick="toggleStudentStatus('${s.StudentID}','${s.Status||'active'}')">
           ${inactive?'Reactivate':'Deactivate'}
         </button>
-        <button class="btn danger sm" style="flex:1;font-size:.62rem;" onclick="deleteStudentUI('${s.StudentID}')">Del</button>
+        <button class="btn danger sm" style="font-size:.62rem;grid-column:span 2;" onclick="deleteStudentUI('${s.StudentID}')">Del</button>
       </div>
     </div>`;
   }).join('');
@@ -4303,6 +4303,45 @@ function parseSimpleCSV(text) {
   return rows;
 }
 
+// Universal file parser — handles CSV, XLS, and XLSX.
+// Returns a 2D array of rows just like parseSimpleCSV.
+// Column matching is done by heading name (case-insensitive, trimmed),
+// so the file name does not matter — only the column headings inside do.
+async function parseUploadedFile(file) {
+  const name = (file.name || '').toLowerCase();
+  const isExcel = name.endsWith('.xlsx') || name.endsWith('.xls');
+
+  if (!isExcel) {
+    // CSV path
+    const text = await file.text();
+    return parseSimpleCSV(text);
+  }
+
+  // Excel path — load SheetJS dynamically if not already loaded
+  if (typeof XLSX === 'undefined') {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Could not load XLSX library'));
+      document.head.appendChild(s);
+    });
+  }
+
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array' });
+
+  // Find the first sheet whose headers match — ignore sheet name and file name
+  for (const sheetName of wb.SheetNames) {
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (!rows || rows.length < 2) continue;
+    // Return this sheet — column matching happens in the caller by header name
+    return rows.map(r => r.map(v => String(v ?? '').trim()));
+  }
+  return [];
+}
+
 async function handleCACsvUpload(input) {
   const file = input.files[0];
   if (!file) return;
@@ -4313,14 +4352,14 @@ async function handleCACsvUpload(input) {
   const perTestMax = weighting.maxCA / (weighting.caComponents || 1);
   const statusEl = document.getElementById('ca-csv-status');
 
-  const text = await file.text();
-  const parsed = parseSimpleCSV(text);
-  if (parsed.length < 2) { statusEl.innerHTML = '<span style="color:var(--red)">CSV looks empty.</span>'; input.value = ''; return; }
-  const header = parsed[0].map(h => h.trim().toLowerCase());
+  statusEl.textContent = 'Reading file…';
+  const parsed = await parseUploadedFile(file);
+  if (parsed.length < 2) { statusEl.innerHTML = '<span style="color:var(--red)">File looks empty or unreadable.</span>'; input.value = ''; return; }
+  const header = parsed[0].map(h => String(h).trim().toLowerCase());
   const idCol = header.indexOf('studentid');
   const scoreCol = header.indexOf('cascore');
   if (idCol === -1 || scoreCol === -1) {
-    statusEl.innerHTML = '<span style="color:var(--red)">CSV must have StudentID and CAScore columns — use the downloaded template.</span>';
+    statusEl.innerHTML = '<span style="color:var(--red)">File must have <b>StudentID</b> and <b>CAScore</b> column headings. Column names must match exactly (not case-sensitive). File name does not matter.</span>';
     input.value = ''; return;
   }
   const rows = parsed.slice(1).map(r => ({ studentId: (r[idCol]||'').trim(), caScore: (r[scoreCol]||'').trim() })).filter(r => r.studentId);
@@ -4469,14 +4508,14 @@ async function handleExamCsvUpload(input) {
   const maxExam = weighting.maxExam;
   const statusEl = document.getElementById('exam-csv-status');
 
-  const text = await file.text();
-  const parsed = parseSimpleCSV(text);
-  if (parsed.length < 2) { statusEl.innerHTML = '<span style="color:var(--red)">CSV looks empty.</span>'; input.value = ''; return; }
-  const header = parsed[0].map(h => h.trim().toLowerCase());
+  statusEl.textContent = 'Reading file…';
+  const parsed = await parseUploadedFile(file);
+  if (parsed.length < 2) { statusEl.innerHTML = '<span style="color:var(--red)">File looks empty or unreadable.</span>'; input.value = ''; return; }
+  const header = parsed[0].map(h => String(h).trim().toLowerCase());
   const idCol = header.indexOf('studentid');
   const scoreCol = header.indexOf('examscore');
   if (idCol === -1 || scoreCol === -1) {
-    statusEl.innerHTML = '<span style="color:var(--red)">CSV must have StudentID and ExamScore columns — use the downloaded template.</span>';
+    statusEl.innerHTML = '<span style="color:var(--red)">File must have <b>StudentID</b> and <b>ExamScore</b> column headings. Column names must match exactly (not case-sensitive). File name does not matter.</span>';
     input.value = ''; return;
   }
   const rows = parsed.slice(1).map(r => ({ studentId: (r[idCol]||'').trim(), examScore: (r[scoreCol]||'').trim() })).filter(r => r.studentId);
