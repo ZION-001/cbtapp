@@ -989,6 +989,11 @@ input, textarea, select, .inp, .sel {
         <div style="flex:1;min-width:0;">
           <div style="font-size:.58rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:2px;">Organisation</div>
           <div id="profile-school-name" style="font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+            <div style="font-size:.55rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);">School ID:</div>
+            <div id="profile-school-id-display" style="font-size:.65rem;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:1.5px;font-family:monospace;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:4px;">—</div>
+            <button onclick="copySchoolId()" title="Copy" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:rgba(255,255,255,.5);font-size:.7rem;">&#x2398;</button>
+          </div>
         </div>
       </div>
       <input type="file" id="logo-file-input" accept="image/*" style="display:none;" onchange="uploadLogo(this)">
@@ -2734,6 +2739,7 @@ function applyProfile(d) {
   S.referralCode = d.referralCode || '';
   const el = id => document.getElementById(id);
   el('profile-school-name').textContent = d.schoolName || '—';
+  const sidEl = el('profile-school-id-display'); if (sidEl) sidEl.textContent = d.schoolId || S.schoolId || '—';
   el('profile-email').textContent = d.email || '';
   if (d.logoUrl) {
     el('profile-logo-img').src = d.logoUrl;
@@ -2903,6 +2909,12 @@ function initiatePayment() {
 let _restoringSession = false;
 let _freshLogin = false; // set true when a fresh login just happened, stops restore from overwriting it
 
+function copySchoolId() {
+  const id = (document.getElementById('profile-school-id-display') || {}).textContent || S.schoolId || '';
+  if (!id || id === '—') { toast('School ID not loaded yet'); return; }
+  navigator.clipboard.writeText(id).then(() => toast('School ID copied: ' + id)).catch(() => toast('School ID: ' + id));
+}
+
 function sessionExpired() {
   S.schoolEmail = null;
   S.sessionToken = null;
@@ -3049,6 +3061,7 @@ function renderStudents() {
         <div style="flex:1;min-width:0;">
           <div class="li-name">${s.Name}${inactive?' (inactive)':''}</div>
           <div class="li-meta">ID: <strong>${s.StudentID}</strong>${s.Email ? ' · ' + s.Email : ''}</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><span style="font-size:.6rem;color:var(--text-muted);font-weight:600;letter-spacing:1px;">ACCESS ID:</span><span style="font-size:.65rem;font-weight:700;color:var(--blue-bright);font-family:monospace;letter-spacing:1px;">${s.AccessID || '—'}</span><button onclick="navigator.clipboard.writeText('${s.AccessID||''}').then(()=>toast('Copied: ${s.AccessID||''}'))" style="background:none;border:none;cursor:pointer;padding:0 3px;font-size:.65rem;color:var(--text-muted);" title="Copy Access ID">&#x2398;</button></div>
         </div>
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;width:100%;">
@@ -3261,6 +3274,7 @@ async function loadStaff() {
         <div class="li-name">${esc(s.Name)}</div>
         <div class="li-meta">${roleLabel} · ${esc(s.Email)}</div>
         ${subjLine}
+        <div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><span style="font-size:.6rem;color:var(--text-muted);font-weight:600;letter-spacing:1px;">ACCESS ID:</span><span style="font-size:.65rem;font-weight:700;color:var(--blue-bright);font-family:monospace;letter-spacing:1px;">${s.AccessID || '—'}</span><button onclick="navigator.clipboard.writeText('${s.AccessID||''}').then(()=>toast('Copied: ${s.AccessID||''}'))" style="background:none;border:none;cursor:pointer;padding:0 3px;font-size:.65rem;color:var(--text-muted);" title="Copy Access ID">&#x2398;</button></div>
       </div>
       <button class="btn danger sm" onclick="deleteStaffUI('${s.StaffID}')">Del</button>
     </div>
